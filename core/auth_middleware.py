@@ -29,7 +29,7 @@ def audit_info_decorator():
     def decorator(func):
         @wraps(func)
         async def wrapper(
-            self, ctx: Context, auditcontext: Optional[dict[str, Any]] = None, **kwargs
+            self, query: str, ctx: Context, auditcontext: Optional[dict[str, Any]] = None
         ):
             # Find the request object in args or kwargs
             request: Request | Any = (
@@ -49,7 +49,7 @@ def audit_info_decorator():
                     auditcontext["bearer_token"] = authinfo.bearer_token
                     auditcontext["transaction_id"] = authinfo.transaction_id
 
-                    return await func(self, ctx, auditcontext, **kwargs)
+                    return await func(self, query, ctx, auditcontext)
 
         return wrapper
 

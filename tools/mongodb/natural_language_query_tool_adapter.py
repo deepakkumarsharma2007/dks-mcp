@@ -1,4 +1,6 @@
 import json
+from logging import Logger
+import logging
 import os
 
 from pydantic import BaseModel, Field
@@ -15,6 +17,9 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from core.agent import create_model, create_react_agent
 from core.auth_middleware import audit_info_decorator
 from core.log_exceptions_middleware import log_exceptions_decorator
+from urllib.parse import quote
+
+from core.logging_config import DKSMCPLogger
 
 class MongoDBNaturalLanguageQueryToolAdapterSchema(BaseModel):
     query: str = Field(
@@ -37,6 +42,7 @@ class MongoDBNaturalLanguageQueryToolAdapter(BaseTool):
     args_schema: type[MongoDBNaturalLanguageQueryToolAdapterSchema] = MongoDBNaturalLanguageQueryToolAdapterSchema
     agent: Any = None
     messages: list = Field(default_factory=list)
+    logger: Logger = DKSMCPLogger.get_logger(__name__)
 
     def __init__(self):
         super().__init__()
@@ -49,19 +55,18 @@ class MongoDBNaturalLanguageQueryToolAdapter(BaseTool):
             )
 
     @audit_info_decorator()
-    @log_exceptions_decorator(logger_name="mongodb_natural_language_tool_logger")
+    # @log_exceptions_decorator()
     async def _arun(
         self,
         query: str,
         ctx: Context,
-        # auditcontext: Optional[dict[str, Any]] = None,
-        tool_logger: Optional[Any] = None,
+        auditcontext: Optional[dict[str, Any]] = None,
     ) -> str:
-
+        query = quote(query, safe="")
         if not query or not isinstance(query, str):
             raise ValueError("Query must be a non-empty string.")
     
-        result = self.execute_natural_language_query(query, ctx.session_id)
+        result = self.execute_natural_language_query(query, ctx.request_id)
 
         return result if isinstance(result, str) else json.dumps(result)
 
@@ -89,7 +94,7 @@ class MongoDBNaturalLanguageQueryToolAdapter(BaseTool):
             return self.messages[-1].content if len(self.messages) > 0 else "No response generated."
         
         except Exception as e:
-            self.logger.error(f"Error processing natural language query {user_query} \n\n exception: {e}")
+            self.logger.error(f"Error processing natural language query {user_query} session_id {session_id} \n\n exception: {e}")
             raise
 
 def mongodb_document_search_agent_adapter() -> MongoDBNaturalLanguageQueryToolAdapter:

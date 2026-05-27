@@ -10,7 +10,8 @@
             //"program": "${workspaceFolder}/mcp/${file}",
             "console": "integratedTerminal",
             "args": "--host localhost --port 8001 --transport streamable-http",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "justMyCode": false
         }
     ]
 }

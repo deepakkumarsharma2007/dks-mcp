@@ -16,7 +16,7 @@ def create_model(name: str, max_completion_tokens: int) -> BaseChatModel:
         ,openai_api_version=os.environ["DKS_AZURE_OPENAI_API_VERSION"]
         ,api_key=os.environ['DKS_AZURE_OPENAI_API_KEY']
         ,verbose=True
-        # , temperature=0.0
+        , temperature=0.0
         , max_retries=1
         , max_completion_tokens= max_completion_tokens
     )

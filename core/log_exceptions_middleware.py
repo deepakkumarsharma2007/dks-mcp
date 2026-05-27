@@ -9,7 +9,7 @@ from mcp.server.fastmcp import Context
 
 from core.logging_config import DKSMCPLogger
 
-def log_exceptions_decorator(logger_name: Optional[str]= "tool_error_logger"):
+def log_exceptions_decorator():
 	"""
 	Decorator to log all exceptions in an async function.
 	Usage: @log_exceptions_decorator(logger_name="tool_error_logger")
@@ -17,14 +17,13 @@ def log_exceptions_decorator(logger_name: Optional[str]= "tool_error_logger"):
 	"""
 	def decorator(func):
 		@functools.wraps(func)
-		async def wrapper(self, query:str, ctx: Context, auditcontext: Optional[dict[str, Any]] = None, tool_logger: logging.Logger= None, **kwargs):
-			if tool_logger is None:
-				tool_logger = DKSMCPLogger.get_logger(logger_name)
+		async def wrapper(self, query:str, ctx: Context, auditcontext: Optional[dict[str, Any]] = None):
+			tool_logger = DKSMCPLogger.get_logger(func.__name__)
 			elapsed: float = 0.0
 			start_time = time.perf_counter()
 			try:
 				tool_logger.info(f"[{ctx['transaction_id']}][{ctx['alias']}] Starting execution of {func.__qualname__}")
-				result = await func(self, ctx, auditcontext, **kwargs)
+				result = await func(self, query, ctx, auditcontext)
 				elapsed = time.perf_counter() - start_time
 				return result
 			except Exception as ex:
