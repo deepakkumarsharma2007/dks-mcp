@@ -1,7 +1,7 @@
 import json
 import os
 
-from pydantic import BaseModel, Field, create_model, create_model
+from pydantic import BaseModel, Field
 from typing import Any, Optional
 from mcp.server.fastmcp import Context
 from langchain_mongodb.agent_toolkit import (
@@ -12,7 +12,7 @@ from langchain_mongodb.agent_toolkit import (
 from langchain_core.tools import BaseTool
 from langchain_core.language_models.chat_models import BaseChatModel
 
-from core.agent import create_react_agent
+from core.agent import create_model, create_react_agent
 from core.auth_middleware import audit_info_decorator
 from core.log_exceptions_middleware import log_exceptions_decorator
 
@@ -20,10 +20,10 @@ class MongoDBNaturalLanguageQueryToolAdapterSchema(BaseModel):
     query: str = Field(
         ...,
         description="Users query in natural language. The query should be related to document search in MongoDB databases.",
-    )
-    auditcontext: Optional[dict[str, Any]] = Field(
-        default_factory=dict, description="auditcontext of the current request"
-    )
+    ),
+    # auditcontext: Optional[dict[str, Any]] = Field(
+    #     default_factory=dict, description="auditcontext of the current request"
+    # )
 
 
 class MongoDBNaturalLanguageQueryToolAdapter(BaseTool):
@@ -32,41 +32,42 @@ class MongoDBNaturalLanguageQueryToolAdapter(BaseTool):
         - It receives a natural language query and an audit context.
     """
 
-    name: str = "MongoDBNaturalLanguageQueryAgent"
+    name: str = "MongoDB_Natural_Language_Query_Tool"
     description: str = MONGODB_AGENT_SYSTEM_PROMPT.format(top_k=5)
-    args_schema = MongoDBNaturalLanguageQueryToolAdapterSchema
-
+    args_schema: type[MongoDBNaturalLanguageQueryToolAdapterSchema] = MongoDBNaturalLanguageQueryToolAdapterSchema
+    agent: Any = None
+    messages: list = Field(default_factory=list)
 
     def __init__(self):
-        self.db_wrapper = MongoDBDatabase.from_connection_string(os.getenv("MONGODB_URI"), os.getenv("MONGODB_NATURAL_LANGUAGE_DATABASE_NAME"))
-        self.llm: BaseChatModel = create_model(name="MongoDBNaturalLanguageQueryAgent", max_completion_tokens=1024)
+        super().__init__()
+        db_wrapper = MongoDBDatabase.from_connection_string(os.getenv("MONGODB_URI"), os.getenv("MONGODB_NATURAL_LANGUAGE_DATABASE_NAME"))
+        llm: BaseChatModel = create_model(name="MongoDBNaturalLanguageQueryAgent", max_completion_tokens=1024)
         self.agent = create_react_agent(
-            llm=self.llm,
-            tools=MongoDBDatabaseToolkit(db = self.db_wrapper, llm = self.llm).get_tools(),
+            llm=llm,
+            tools=MongoDBDatabaseToolkit(db = db_wrapper, llm = llm).get_tools(),
             system_prompt=MONGODB_AGENT_SYSTEM_PROMPT.format(top_k=5)
             )
-        self.toolkit: MongoDBDatabaseToolkit = MongoDBDatabaseToolkit(db = self.db_wrapper, llm = self.llm)
-        self.messages = []
 
     @audit_info_decorator()
     @log_exceptions_decorator(logger_name="mongodb_natural_language_tool_logger")
-    async def _run(
+    async def _arun(
         self,
         query: str,
         ctx: Context,
-        auditcontext: Optional[dict[str, Any]] = None,
+        # auditcontext: Optional[dict[str, Any]] = None,
         tool_logger: Optional[Any] = None,
     ) -> str:
 
         if not query or not isinstance(query, str):
             raise ValueError("Query must be a non-empty string.")
     
-        result = self.execute_natural_language_query(query, ctx.session_id, auditcontext or {})
+        result = self.execute_natural_language_query(query, ctx.session_id)
 
         return result if isinstance(result, str) else json.dumps(result)
 
-
-    def execute_natural_language_query(self, user_query: str, session_id: str, audit_context: dict):
+    def _run(self) -> Any:
+            raise NotImplementedError("This tool is async only. Use _arun method.")
+    def execute_natural_language_query(self, user_query: str, session_id: str):
         """
         Converts user natural language query into structured MongoDB queries using a React agent and returns the results.
         """

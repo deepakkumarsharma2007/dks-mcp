@@ -1,7 +1,6 @@
 import os
 
 from mcp.server.fastmcp import FastMCP
-from core.lifespan_hook import lifespan
 from core.server_settings import ServerSettings
 
 

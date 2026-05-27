@@ -6,10 +6,10 @@
             "type": "debugpy",
             "request": "launch",
             //"program": "${file}",
-            "module": "mcp.server",
+            "module": "dks-mcp.server",
             //"program": "${workspaceFolder}/mcp/${file}",
             "console": "integratedTerminal",
-            "args": "--host localhost --port 8000 --transport streamable-http",
+            "args": "--host localhost --port 8001 --transport streamable-http",
             "envFile": "${workspaceFolder}/.env"
         }
     ]

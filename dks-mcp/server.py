@@ -52,7 +52,8 @@ def main(port: int, host: str, transport: Literal["sse", "streamable-http"]) -> 
 
         mongodb_query_tool = mongodb_document_search_agent_adapter()
         # Register the async method as a tool function
-        mcp_server.tool(name = mongodb_query_tool.name, description = mongodb_query_tool.description)(mongodb_query_tool._arun)
+        mcp_server.tool(name = mongodb_query_tool.name, 
+                        description = mongodb_query_tool.description)(mongodb_query_tool._arun)
 
 
         logger.info(f"""MongoDB Query tool registered to MCP server")
