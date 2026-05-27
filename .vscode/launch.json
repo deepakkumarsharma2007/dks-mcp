@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+         {
+            "name": "Python Uvicorn MCP Server",
+            "type": "debugpy",
+            "request": "launch",
+            //"program": "${file}",
+            "module": "mcp.server",
+            //"program": "${workspaceFolder}/fdp-jobs-mcp/${file}",
+            "console": "integratedTerminal",
+            "args": "--host localhost --port 8000 --transport streamable-http",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
