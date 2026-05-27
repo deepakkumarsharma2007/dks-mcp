@@ -7,7 +7,7 @@
             "request": "launch",
             //"program": "${file}",
             "module": "mcp.server",
-            //"program": "${workspaceFolder}/fdp-jobs-mcp/${file}",
+            //"program": "${workspaceFolder}/mcp/${file}",
             "console": "integratedTerminal",
             "args": "--host localhost --port 8000 --transport streamable-http",
             "envFile": "${workspaceFolder}/.env"

@@ -5,14 +5,14 @@ from logging import config as logging_config
 from logging.config import dictConfig
 
 
-PACKAGE_ROOT_LOGGER_NAME: str = "fdp_mcp"
+PACKAGE_ROOT_LOGGER_NAME: str = "dks_mcp"
 
 # Logs directory for log files.
 # If not set, file based log handlers are not added.
-LOGS_DIR = os.environ.get("FDPMCP_LOGGER_LOGS_DIR", None)
+LOGS_DIR = os.environ.get("DKSMCP_LOGGER_LOGS_DIR", None)
 
 # Ref: https://docs.python.org/3/library/logging.html#logging-levels
-LOGS_LEVEL = os.environ.get("FDPMCP_LOGGER_LOGS_LEVEL", "INFO")
+LOGS_LEVEL = os.environ.get("DKSMCP_LOGGER_LOGS_LEVEL", "INFO")
 
 
 class DKSMCPLogger:
@@ -52,7 +52,7 @@ class DKSMCPLogger:
                 "console": {"class": "logging.StreamHandler", "formatter": "detailed"},
             },
             "loggers": {
-                "fdp_mcp": {
+                "dks_mcp": {
                     "handlers": ["console"],
                     "level": LOGS_LEVEL,
                     "propagate": False,
@@ -76,7 +76,7 @@ class DKSMCPLogger:
             }
             # To handle rotation based on file size
             # This is a config example to be added in future if needed.
-            LOGGING_CONFIG["loggers"]["fdp_mcp"]["handlers"].append(
+            LOGGING_CONFIG["loggers"]["dks_mcp"]["handlers"].append(
                 "file_timed"
             )
 
@@ -95,7 +95,7 @@ class DKSMCPLogger:
     @staticmethod
     def get_logger(logger_name: str = PACKAGE_ROOT_LOGGER_NAME):
         """
-        Function to get logger object for fdp_mcp package.
+        Function to get logger object for dks_mcp package.
 
     
         Returns logging module logger object to use for logging messages.
