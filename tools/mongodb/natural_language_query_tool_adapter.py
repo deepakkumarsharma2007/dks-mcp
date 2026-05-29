@@ -38,7 +38,14 @@ class MongoDBNaturalLanguageQueryToolAdapter(BaseTool):
     """
 
     name: str = "MongoDB_Natural_Language_Query_Tool"
-    description: str = MONGODB_AGENT_SYSTEM_PROMPT.format(top_k=5)
+    description: str = """Users query in natural language to fetch data from MongoDB databases. The query should be related to document search in MongoDB databases.
+        
+    Read-only MongoDB query tool for AI agents. Generates and executes syntactically correct MongoDB aggregation queries 
+    from natural language questions, starting by inspecting database collections and schemas. Automatically limits results, 
+    retrieves only relevant fields, validates queries before execution, and retries on errors. 
+    Supports only safe read operations and never performs insert, update, or delete actions.
+    """
+    # MONGODB_AGENT_SYSTEM_PROMPT.format(top_k=5)
     args_schema: type[MongoDBNaturalLanguageQueryToolAdapterSchema] = MongoDBNaturalLanguageQueryToolAdapterSchema
     agent: Any = None
     messages: list = Field(default_factory=list)
