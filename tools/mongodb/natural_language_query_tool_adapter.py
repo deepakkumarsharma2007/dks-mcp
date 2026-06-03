@@ -58,7 +58,13 @@ class MongoDBNaturalLanguageQueryToolAdapter(BaseTool):
         self.agent = create_react_agent(
             llm=llm,
             tools=MongoDBDatabaseToolkit(db = db_wrapper, llm = llm).get_tools(),
-            system_prompt=MONGODB_AGENT_SYSTEM_PROMPT.format(top_k=5)
+            system_prompt=MONGODB_AGENT_SYSTEM_PROMPT + """
+            
+What not to do:
+- Do not create query with db.find() or db.collection.find() format. Always use the aggregate function.
+- Do not create queries without an aggregation pipeline. Always include an aggregation pipeline, even if it's just an empty pipeline (i.e. []). This is because the agent toolkit only supports the execution of aggregation queries.
+- Do not query for all the fields in a collection. Always specify the relevant fields
+""".format(top_k=5)
             )
 
     @audit_info_decorator()
