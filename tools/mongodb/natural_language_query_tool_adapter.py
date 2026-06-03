@@ -64,6 +64,19 @@ What not to do:
 - Do not create query with db.find() or db.collection.find() format. Always use the aggregate function.
 - Do not create queries without an aggregation pipeline. Always include an aggregation pipeline, even if it's just an empty pipeline (i.e. []). This is because the agent toolkit only supports the execution of aggregation queries.
 - Do not query for all the fields in a collection. Always specify the relevant fields
+
+Sample query and answer:
+
+db.movies.aggregate([ { $match: { type: 'movie' } }, { $project: { _id: 0, title: 1 } } ])
+Answer 
+{
+  title: 'A Corner in Wheat'
+}
+{
+  title: 'Traffic in Souls'
+}
+
+
 """.format(top_k=5)
             )
 
